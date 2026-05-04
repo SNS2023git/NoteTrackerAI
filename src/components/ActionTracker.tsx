@@ -309,11 +309,11 @@ export default function ActionTracker({ projects }: ActionTrackerProps) {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Target Project</Label>
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <Select key={`proj-select-${projects.length}`} value={selectedProjectId} onValueChange={setSelectedProjectId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select project">
-                    {selectedProjectId === 'all' ? 'All Projects' : projects.find(p => p.id === selectedProjectId)?.name}
-                  </SelectValue>
+                  <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">
+                    {selectedProjectId === 'all' ? 'All Projects' : (projects.find(p => p.id === selectedProjectId)?.name || 'Select project')}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Projects</SelectItem>
@@ -371,15 +371,15 @@ export default function ActionTracker({ projects }: ActionTrackerProps) {
                   <History size={16} />
                   Version History
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
-                  <DialogHeader className="p-6 pb-2">
-                    <DialogTitle>Meeting Notes History</DialogTitle>
+                <DialogContent className="sm:max-w-3xl max-h-[90vh] h-[80vh] flex flex-col p-0 overflow-hidden bg-white">
+                  <DialogHeader className="p-6 pb-2 flex-shrink-0 border-b border-slate-100">
+                    <DialogTitle className="text-xl">Meeting Notes History</DialogTitle>
                     <DialogDescription>
                       Review recent versions (auto-archived after 10 days for storage optimization)
                     </DialogDescription>
                   </DialogHeader>
-                  <ScrollArea className="flex-1 px-6 pb-6">
-                    <div className="space-y-4 py-2">
+                  <ScrollArea className="flex-1 w-full bg-slate-50/30 min-h-0">
+                    <div className="space-y-4 p-6 pt-4">
                       {history.map((note) => (
                         <Card key={note.id} className="border-slate-100 shadow-none hover:border-primary/30 transition-colors">
                           <CardHeader className="p-4 pb-2">
@@ -519,7 +519,9 @@ export default function ActionTracker({ projects }: ActionTrackerProps) {
                                   onValueChange={(v) => setEditFormData({ ...editFormData, category: v as any })}
                                 >
                                   <SelectTrigger className="h-8 w-full border-slate-200 bg-white/50 px-2 focus:ring-primary/20 text-[10px]">
-                                    <SelectValue />
+                                    <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">
+                                      {editFormData.category || 'Uncategorized'}
+                                    </span>
                                   </SelectTrigger>
                                   <SelectContent>
                                     {ACTION_ITEM_CATEGORIES.map(cat => (
@@ -574,10 +576,10 @@ export default function ActionTracker({ projects }: ActionTrackerProps) {
                                 value={editingId === item.id ? editFormData.status : item.status} 
                                 onValueChange={(v) => editingId === item.id ? setEditFormData({ ...editFormData, status: v as any }) : updateStatus(item.id, v)}
                               >
-                                <SelectTrigger className="h-8 w-full border-slate-200 bg-white/50 px-2 focus:ring-primary/20">
-                                  <SelectValue>
-                                    {getStatusBadge(editingId === item.id ? editFormData.status! : item.status, item.createdAt)}
-                                  </SelectValue>
+                                <SelectTrigger className="h-8 w-full border-slate-200 bg-white/50 px-2 focus:ring-primary/20 text-xs sm:text-sm">
+                                  <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">
+                                    {STATUS_OPTIONS.find(o => o.value === (editingId === item.id ? editFormData.status : item.status))?.label}
+                                  </span>
                                 </SelectTrigger>
                                 <SelectContent>
                                   {STATUS_OPTIONS.map(opt => (
@@ -672,7 +674,7 @@ export default function ActionTracker({ projects }: ActionTrackerProps) {
             </DialogHeader>
           </div>
           
-          <ScrollArea className="flex-1 overflow-y-auto">
+          <ScrollArea className="flex-1 h-full">
             <div className="p-6 space-y-6">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -709,7 +711,9 @@ export default function ActionTracker({ projects }: ActionTrackerProps) {
                       }}
                     >
                       <SelectTrigger className="h-7 text-[10px] py-0 bg-slate-100 border-none font-medium text-slate-600 w-full truncate">
-                        <SelectValue />
+                        <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">
+                          {viewingItem?.category || 'Uncategorized'}
+                        </span>
                       </SelectTrigger>
                       <SelectContent>
                         {ACTION_ITEM_CATEGORIES.map(cat => (
@@ -767,20 +771,20 @@ export default function ActionTracker({ projects }: ActionTrackerProps) {
       </Dialog>
 
       <Dialog open={!!viewingNote} onOpenChange={(open) => !open && setViewingNote(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>Meeting Notes Content</DialogTitle>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] h-[80vh] flex flex-col overflow-hidden bg-white">
+          <DialogHeader className="flex-shrink-0 border-b border-slate-100 pb-4">
+            <DialogTitle className="text-xl">Meeting Notes Content</DialogTitle>
             <DialogDescription>
               Added by {viewingNote?.userName} on {viewingNote && format(viewingNote.analyzedAt, 'PPP p')}
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="flex-1 mt-4 p-4 rounded-md bg-slate-50 border border-slate-100">
-            <pre className="text-sm font-sans whitespace-pre-wrap text-slate-700">
+          <ScrollArea className="flex-1 mt-4 p-4 rounded-md bg-slate-50 border border-slate-100 min-h-0 overflow-y-auto">
+            <pre className="text-sm font-sans whitespace-pre-wrap text-slate-700 leading-relaxed">
               {viewingNote?.content}
             </pre>
           </ScrollArea>
-          <div className="flex justify-end mt-4">
-            <Button onClick={() => setViewingNote(null)}>Close</Button>
+          <div className="flex justify-end mt-4 flex-shrink-0">
+            <Button onClick={() => setViewingNote(null)}>Close View</Button>
           </div>
         </DialogContent>
       </Dialog>

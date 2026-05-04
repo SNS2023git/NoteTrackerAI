@@ -101,7 +101,9 @@ export default function AdminPanel() {
               <Label>Role</Label>
               <Select value={role} onValueChange={(v: any) => setRole(v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">
+                    {role === 'admin' ? 'Administrator' : role === 'regular' ? 'Regular User' : 'Select role'}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="regular">Regular User</SelectItem>

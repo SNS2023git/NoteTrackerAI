@@ -29,7 +29,7 @@ export default function AskTrackerAgent({ projects }: AskTrackerAgentProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!selectedProjectId || selectedProjectId === 'all') return;
@@ -48,12 +48,7 @@ export default function AskTrackerAgent({ projects }: AskTrackerAgentProps) {
   }, [selectedProjectId]);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
+    scrollBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSend = async () => {
@@ -93,17 +88,19 @@ export default function AskTrackerAgent({ projects }: AskTrackerAgentProps) {
   };
 
   return (
-    <div className="h-[calc(100vh-12rem)] flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="min-h-[700px] h-[calc(100vh-14rem)] flex flex-col gap-6">
+      <div className="flex-shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Ask Tracker Agent</h2>
           <p className="text-sm text-slate-500">Intelligent chat to query and summarize project actions</p>
         </div>
         
         <div className="w-full sm:w-64">
-          <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+          <Select key={`agent-proj-${projects.length}`} value={selectedProjectId} onValueChange={setSelectedProjectId}>
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Select a project" />
+              <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">
+                {projects.find(p => p.id === selectedProjectId)?.name || 'Select a project'}
+              </span>
             </SelectTrigger>
             <SelectContent>
               {projects.map(p => (
@@ -116,16 +113,16 @@ export default function AskTrackerAgent({ projects }: AskTrackerAgentProps) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-6">
-        <Card className="flex-1 flex flex-col border-slate-200 shadow-sm overflow-hidden bg-white">
-          <CardHeader className="border-b border-slate-100 bg-slate-50/50 py-3 px-6">
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-6 min-h-0">
+        <Card className="flex-1 flex flex-col border-slate-200 shadow-sm overflow-hidden bg-white min-h-0">
+          <CardHeader className="flex-shrink-0 border-b border-slate-100 bg-slate-50/50 py-3 px-6">
             <div className="flex items-center gap-2">
               <Bot className="text-primary" size={20} />
               <CardTitle className="text-base">Agent Conversation</CardTitle>
             </div>
           </CardHeader>
           
-          <ScrollArea ref={scrollRef} className="flex-1 p-6">
+          <ScrollArea className="flex-1 p-6">
             <div className="space-y-6">
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
@@ -169,10 +166,11 @@ export default function AskTrackerAgent({ projects }: AskTrackerAgentProps) {
                   </div>
                 </div>
               )}
+              <div ref={scrollBottomRef} />
             </div>
           </ScrollArea>
 
-          <CardFooter className="p-4 bg-slate-50/50 border-t border-slate-100">
+          <CardFooter className="flex-shrink-0 p-4 bg-slate-50/50 border-t border-slate-100">
             <div className="flex w-full gap-2 relative">
               <Input
                 placeholder={selectedProjectId ? "Ask about action items..." : "Please select a project first"}
@@ -195,7 +193,7 @@ export default function AskTrackerAgent({ projects }: AskTrackerAgentProps) {
         </Card>
 
         <Card className="w-full lg:w-80 border-slate-200 shadow-sm flex flex-col bg-white">
-          <CardHeader className="py-4 border-b border-slate-100">
+          <CardHeader className="flex-shrink-0 py-4 border-b border-slate-100">
             <CardTitle className="text-sm font-bold flex items-center gap-2">
               <ListTodo size={16} />
               Active Context

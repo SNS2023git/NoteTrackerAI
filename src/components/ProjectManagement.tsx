@@ -187,8 +187,10 @@ export default function ProjectManagement({ projects }: ProjectManagementProps) 
                   <TableCell className="text-slate-500 text-sm truncate max-w-[200px]">{p.description || '-'}</TableCell>
                   <TableCell className="text-right flex justify-end gap-2">
                     <Dialog open={selectedProject?.id === p.id} onOpenChange={(open) => !open && setSelectedProject(null)}>
-                      <DialogTrigger render={<Button variant="ghost" size="icon" onClick={() => setSelectedProject(p)} className="text-blue-500 hover:text-blue-700 hover:bg-blue-50" />}>
-                        <Users size={16} />
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedProject(p)} className="text-blue-500 hover:text-blue-700 hover:bg-blue-50">
+                          <Users size={16} />
+                        </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
@@ -213,7 +215,9 @@ export default function ProjectManagement({ projects }: ProjectManagementProps) 
                                 <Label className="text-xs">Role</Label>
                                 <Select value={newMemberRole} onValueChange={(v) => setNewMemberRole(v as TeamRole)}>
                                   <SelectTrigger className="h-9">
-                                    <SelectValue placeholder="Select role" />
+                                    <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">
+                                      {newMemberRole}
+                                    </span>
                                   </SelectTrigger>
                                   <SelectContent>
                                     {ROLES.map(role => (
